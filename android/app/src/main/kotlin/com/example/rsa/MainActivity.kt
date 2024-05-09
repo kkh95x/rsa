@@ -1,4 +1,4 @@
-package com.example.rsa
+package com.karimkhatib.io
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -42,12 +42,13 @@ dependencies:
   fast_rsa: ^3.6.2
   pointycastle: ^3.9.1
 dev_dependencies:
-
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
+  flutter_launcher_icons: "^0.13.1"
+flutter_launcher_icons:
+  windows:
+    generate: true
+    image_path: "assets/logo.png"
+    icon_size: 256 # min:48, max:256, default: 48
+  
   flutter_lints: ^2.0.0
   flutter_test:
     sdk: flutter
