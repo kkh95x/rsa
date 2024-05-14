@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rsa/decode_message_page.dart';
+import 'package:rsa/generate_rsa_keys_page.dart';
 import 'package:rsa/message_domain.dart';
 import 'package:rsa/send_message_page.dart';
 import 'package:rsa/providers.dart';
@@ -11,8 +12,8 @@ class UserAHomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final rsaKeys =
-        ref.watch(getRandomPrivteKeyAndPublicKeyPRovider(To.A)).value;
+     final rsaKeys =
+        ref.watch(getRandomPrivteKeyAndPublicKeyValueProvider(To.B));
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 500),
@@ -116,13 +117,39 @@ class UserAHomePage extends ConsumerWidget {
             height: 20,
           ),
           ElevatedButton(
-              onPressed: () {
-                ref.invalidate(getRandomPrivteKeyAndPublicKeyPRovider(To.A));
+              onPressed: () async{
+               ref
+                        .read(getRandomPrivteKeyAndPublicKeyValueProvider(To.B)
+                            .notifier)
+                        .state =
+                    await ref.read(
+                        getRandomPrivteKeyAndPublicKeyPRovider(To.B).future);
               },
               child: const Text("Generate Random Key")),
-          const SizedBox(
-            height: 30,
+        const SizedBox(
+            height: 20,
           ),
+          ElevatedButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return GenerateRSAKEeysPage();
+                  },
+                ).then((value) {
+                  if (value is (String, String)) {
+                    ref
+                        .read(getRandomPrivteKeyAndPublicKeyValueProvider(To.B)
+                            .notifier)
+                        .state = value;
+                  }
+                });
+              },
+              child: const Text("Generate Manual Key")),
+          const SizedBox(
+            height: 20,
+          ),
+
           ElevatedButton(
               onPressed: () {
                 showDialog(

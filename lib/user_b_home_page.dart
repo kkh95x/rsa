@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rsa/decode_message_page.dart';
+import 'package:rsa/generate_rsa_keys_page.dart';
 import 'package:rsa/message_domain.dart';
 import 'package:rsa/send_message_page.dart';
 import 'package:rsa/providers.dart';
@@ -11,7 +12,8 @@ class UserBHomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final rsaKeys = ref.watch(getRandomPrivteKeyAndPublicKeyPRovider(To.B)).value;
+    final rsaKeys =
+        ref.watch(getRandomPrivteKeyAndPublicKeyValueProvider(To.B));
     return Container(
       constraints: const BoxConstraints(maxWidth: 500),
       child: Column(
@@ -51,13 +53,14 @@ class UserBHomePage extends ConsumerWidget {
               ),
               Row(
                 children: [
-              SelectableText(rsaKeys?.$2.toString() ?? " "),
+                  SelectableText(rsaKeys?.$2.toString() ?? " "),
                   const SizedBox(
                     width: 2,
                   ),
                   IconButton(
                       onPressed: () {
-                        Clipboard.setData(ClipboardData(text: rsaKeys?.$1??" "));
+                        Clipboard.setData(
+                            ClipboardData(text: rsaKeys?.$1 ?? " "));
                         ScaffoldMessenger.of(context)
                             .showSnackBar(const SnackBar(
                                 backgroundColor: Colors.black,
@@ -86,13 +89,14 @@ class UserBHomePage extends ConsumerWidget {
               ),
               Row(
                 children: [
-              SelectableText(rsaKeys?.$1.toString() ?? ""),
+                  SelectableText(rsaKeys?.$1.toString() ?? ""),
                   const SizedBox(
                     width: 2,
                   ),
                   IconButton(
                       onPressed: () {
-                        Clipboard.setData(ClipboardData(text: rsaKeys?.$2??" "));
+                        Clipboard.setData(
+                            ClipboardData(text: rsaKeys?.$2 ?? " "));
                         ScaffoldMessenger.of(context)
                             .showSnackBar(const SnackBar(
                                 backgroundColor: Colors.black,
@@ -114,12 +118,37 @@ class UserBHomePage extends ConsumerWidget {
             height: 20,
           ),
           ElevatedButton(
-              onPressed: () {
-                ref.invalidate(getRandomPrivteKeyAndPublicKeyPRovider(To.B));
+              onPressed: () async {
+                ref
+                        .read(getRandomPrivteKeyAndPublicKeyValueProvider(To.B)
+                            .notifier)
+                        .state =
+                    await ref.read(
+                        getRandomPrivteKeyAndPublicKeyPRovider(To.B).future);
               },
               child: const Text("Generate Random Key")),
           const SizedBox(
-            height: 30,
+            height: 20,
+          ),
+          ElevatedButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return GenerateRSAKEeysPage();
+                  },
+                ).then((value) {
+                  if (value is (String, String)) {
+                    ref
+                        .read(getRandomPrivteKeyAndPublicKeyValueProvider(To.B)
+                            .notifier)
+                        .state = value;
+                  }
+                });
+              },
+              child: const Text("Generate Manual Key")),
+          const SizedBox(
+            height: 20,
           ),
           ElevatedButton(
               onPressed: () {
@@ -149,7 +178,7 @@ class UserBHomePage extends ConsumerWidget {
               List<Message> messages = ref.watch(messageNotifierProvider(To.B));
               if (messages.isEmpty) {
                 return const Card(
-                  child:  Center(
+                  child: Center(
                     child: Text("No Messages"),
                   ),
                 );

@@ -7,11 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rsa/message_domain.dart';
 
 final getRandomPrivteKeyAndPublicKeyPRovider =
-    FutureProvider.family<(String,String), To>((ref, type) async {
+    FutureProvider.autoDispose.family<(String, String), To>((ref, type) async {
   final random = Random.secure();
   final p = generateRandomPrime(50, 90);
-  final q = generateRandomPrime(50, 90,otherThis: p);
-
+  final q = generateRandomPrime(50, 90, otherThis: p);
 
   final n = p * q;
   final phi = (p - 1) * (q - 1);
@@ -22,7 +21,10 @@ final getRandomPrivteKeyAndPublicKeyPRovider =
   } while (phi.gcd(e) != 1);
 
   final d = e.modInverse(phi);
-  return ("${e}N$n","${d}N$n");
+  return ("${e}N$n", "${d}N$n");
+});
+final getRandomPrivteKeyAndPublicKeyValueProvider=StateProvider.family<(String, String)?,To>((ref,to) {
+return null;
 });
 final messageNotifierProvider =
     StateNotifierProvider.family<MessageNotifier, List<Message>, To>(
@@ -36,27 +38,26 @@ class MessageNotifier extends StateNotifier<List<Message>> {
 }
 
 final encriptionStringByPublicKey =
-    StateProvider.family<List<int>, (String, List<int>)>((ref, params)  {
+    StateProvider.family<List<int>, (String, List<int>)>((ref, params) {
   final plainTextList = params.$2;
   final publicKey = params.$1;
- if(!publicKey.contains("N")){
-  return [];
- }
- final pk=int.tryParse(publicKey.split("N").firstOrNull??"");
- final n=int.tryParse(publicKey.split("N").lastOrNull??"");
- if(pk==null||n==null){
-  return [];
- }
- List<int> encTextList=[];
- for (var element in plainTextList) {
-  final m=BigInt.from(element);
-  
-  final nBig=BigInt.from(n);
-  final result=(pow(m, pk));
-  final c=result%nBig;
-  encTextList.add(c.toInt());
-   
- }
+  if (!publicKey.contains("N")) {
+    return [];
+  }
+  final pk = int.tryParse(publicKey.split("N").firstOrNull ?? "");
+  final n = int.tryParse(publicKey.split("N").lastOrNull ?? "");
+  if (pk == null || n == null) {
+    return [];
+  }
+  List<int> encTextList = [];
+  for (var element in plainTextList) {
+    final m = BigInt.from(element);
+
+    final nBig = BigInt.from(n);
+    final result = (pow(m, pk));
+    final c = result % nBig;
+    encTextList.add(c.toInt());
+  }
 
   return encTextList;
 });
@@ -72,14 +73,15 @@ BigInt pow(BigInt base, int exponent) {
   }
   return exponent >= 0 ? result : BigInt.one ~/ result;
 }
+
 final decriptionStringByPrivateKey =
     FutureProvider.family<String, (To, String)>((ref, params) async {
   final message = params.$2;
   final privateKey =
       (await ref.read(getRandomPrivteKeyAndPublicKeyPRovider(params.$1).future))
           .$1;
-var result = await RSA.decryptPKCS1v15(message, privateKey);
-return result;
+  var result = await RSA.decryptPKCS1v15(message, privateKey);
+  return result;
   // final decryptedCipher = RSAEngine()
   //   ..init(false, PrivateKeyParameter<RSAPrivateKey>(privateKey));
   // final decryptedBytes = decryptedCipher.process(utf8.encode(message));
@@ -168,19 +170,31 @@ bool isPrime(int n) {
   return true;
 }
 
-int generateRandomPrime(int min, int max,{int? otherThis}) {
+int generateRandomPrime(int min, int max, {int? otherThis}) {
   Random random = Random();
   int randomNumber = random.nextInt(max - min) + min;
-  if(otherThis==null){
-
-  while (!isPrime(randomNumber)) {
-    randomNumber = random.nextInt(max - min) + min;
-  }
-  }else{
-      while (!isPrime(randomNumber)&& randomNumber!=otherThis) {
-    randomNumber = random.nextInt(max - min) + min;
-  }
+  if (otherThis == null) {
+    while (!isPrime(randomNumber)) {
+      randomNumber = random.nextInt(max - min) + min;
+    }
+  } else {
+    while (!isPrime(randomNumber) && randomNumber != otherThis) {
+      randomNumber = random.nextInt(max - min) + min;
+    }
   }
 
   return randomNumber;
 }
+
+final isValidePOrQNumbersProvider =
+    Provider.autoDispose.family<bool, Object?>((ref, value) {
+  print("----------->$value");
+  final number = int.tryParse(value.toString()) ?? 0;
+  if (number == 0 || number == 1) {
+    return false;
+  }
+  if (!isPrime(number)) {
+    return false;
+  }
+  return true;
+});
