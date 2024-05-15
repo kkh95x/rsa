@@ -119,11 +119,11 @@ class UserAHomePage extends ConsumerWidget {
           ElevatedButton(
               onPressed: () async{
                ref
-                        .read(getRandomPrivteKeyAndPublicKeyValueProvider(To.B)
+                        .read(getRandomPrivteKeyAndPublicKeyValueProvider(To.A)
                             .notifier)
                         .state =
                     await ref.read(
-                        getRandomPrivteKeyAndPublicKeyPRovider(To.B).future);
+                        getRandomPrivteKeyAndPublicKeyPRovider(To.A).future);
               },
               child: const Text("Generate Random Key")),
         const SizedBox(
