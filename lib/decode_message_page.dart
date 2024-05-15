@@ -95,6 +95,8 @@ class DecodeMessagePage extends ConsumerWidget {
                         .toList(),
               );
             }),
+            SizedBox(height: 10,)
+            ,ElevatedButton(onPressed: (){Navigator.pop(context);}, child: Text("back"))
           ],
         ),
       ),
