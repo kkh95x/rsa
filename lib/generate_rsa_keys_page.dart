@@ -108,7 +108,8 @@ class GenerateRSAKEeysPage extends ConsumerWidget {
               DynamicInput(
                 placeholder: "Enter e",
                 control: "e",
-                description: "e : gcd(e,φ(n)${phi == null ? "" : " = $phi"}) , 2<= e <  φ(n)${phi == null ? "" : " = $phi"})",
+                description:
+                    "e : gcd(e,φ(n)${phi == null ? "" : " = $phi"}) , 2<= e <  φ(n)${phi == null ? "" : " = $phi"})",
               ),
               SizedBox(
                 height: 10,
@@ -118,7 +119,7 @@ class GenerateRSAKEeysPage extends ConsumerWidget {
 
                 return Text.rich(TextSpan(
                   text:
-                      "e : ${e != null ? (phi != null) ? e > phi ? " e < φ(n) " :  e.gcd(phi) == 1 ? e : " gcd($e,$phi) != 1" : "?" : "?"} ",
+                      "e : ${e != null ? (phi != null) ? e > phi ? " e < φ(n) " : e.gcd(phi) == 1 ? e : " gcd($e,$phi) != 1" : "?" : "?"} ",
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,

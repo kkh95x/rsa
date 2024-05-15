@@ -18,7 +18,11 @@ class SendMessagePage extends StatelessWidget {
   const SendMessagePage({super.key, required this.to});
   final To to;
   List<int> stringToAscii(String text) {
+    if (int.tryParse(text) != null) {
+      return [int.tryParse(text) ?? 0];
+    }
     List<int> asciiCodes = [];
+
     for (int i = 0; i < text.length; i++) {
       asciiCodes.add(text.codeUnitAt(i));
     }
@@ -68,14 +72,35 @@ class SendMessagePage extends StatelessWidget {
                           formGroup.control("messag").value?.toString() ?? "";
                       final messageList = stringToAscii(message);
                       return Row(
-                        children: messageList.isEmpty
-                            ? [
-                                const SizedBox(
-                                  height: 35,
-                                )
-                              ]
-                            : messageList
-                                .map((e) => Container(
+                        children: messageList
+                            .map((e) => Builder(builder: (context) {
+                                  final publicKey = formGroup
+                                      .control("publicKey")
+                                      .value as String?;
+                                  String message = "C = M ^ e mode n";
+                                  if (publicKey == null) {
+                                  } else {
+                                    dynamic ep =
+                                        publicKey.split("N").firstOrNull;
+                                    dynamic n = publicKey.split("N").lastOrNull;
+                                    n = int.tryParse(n);
+                                    ep = int.tryParse(ep);
+
+                                    // final result=
+                                    if (ep != null && n != null) {
+                                      final m = BigInt.from(e);
+
+                                      final nBig = BigInt.from(n);
+                                      final result = (pow(m, ep));
+                                      final c = result % nBig;
+                                      message =
+                                          "c= m ^ e mode n =>  $e ^ $ep mode $n = $c";
+                                    }
+                                  }
+
+                                  return Tooltip(
+                                    message: message,
+                                    child: Container(
                                       padding: const EdgeInsets.all(4),
                                       margin: const EdgeInsets.all(4),
                                       decoration: BoxDecoration(
@@ -83,8 +108,10 @@ class SendMessagePage extends StatelessWidget {
                                           borderRadius:
                                               BorderRadius.circular(4)),
                                       child: Text(e.toString()),
-                                    ))
-                                .toList(),
+                                    ),
+                                  );
+                                }))
+                            .toList(),
                       );
                     }),
                     const SizedBox(
@@ -96,6 +123,18 @@ class SendMessagePage extends StatelessWidget {
                       control: "publicKey",
                       description:
                           "enter public key from ${to == To.A ? "B" : "A"} user",
+                    ),
+                    ReactiveFormConsumer(
+                      builder: (context, formGroup, child) {
+                        final publicKey =
+                            formGroup.control("publicKey").value as String?;
+                        if (publicKey == null) {
+                          return const SizedBox();
+                        }
+                        final e = publicKey.split("N").firstOrNull ?? "?";
+                        final n = publicKey.split("N").lastOrNull ?? "?";
+                        return Text("e= $e   n= $n");
+                      },
                     ),
                     const SizedBox(
                       height: 10,
@@ -115,12 +154,20 @@ class SendMessagePage extends StatelessWidget {
                           final encriptionKey = ref.read(
                               encriptionStringByPublicKey(
                                   (publickKey, messageList)));
-                          String encText = String.fromCharCodes(encriptionKey);
+
+                          String encText = encriptionKey.length == 1
+                              ? encriptionKey.first.toString()
+                              : String.fromCharCodes(encriptionKey);
                           formGroup.control("EncMessag").value = encText;
-                          formGroup.control("encMessageList").value = encriptionKey;
+                          formGroup.control("encMessageList").value =
+                              encriptionKey;
                         },
                         child: Text(
                             "Generate message Encr with public key of ${to.name}")),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text("C = M ^ e mode n"),
                     const SizedBox(
                       height: 30,
                     ),
@@ -180,7 +227,8 @@ class SendMessagePage extends StatelessWidget {
                                   .value as List<int>? ??
                               [];
                           final encriptionMessage =
-                              formGroup.control("EncMessag").value as String? ?? "";
+                              formGroup.control("EncMessag").value as String? ??
+                                  "";
                           final message = Message(
                               valuesMessageEncription: encriptionList,
                               message: encriptionMessage,

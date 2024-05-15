@@ -59,7 +59,7 @@ class DecodeMessagePage extends ConsumerWidget {
                   final listMessag = message.valuesMessageEncription;
                   final messageListUscii = ref
                       .read(encriptionStringByPublicKey((prKey, listMessag)));
-                  form.control("messag").value =
+                  form.control("messag").value =messageListUscii.length==1?messageListUscii.first.toString():
                       String.fromCharCodes(messageListUscii);
                   form.control("messagList").value = messageListUscii;
                 },

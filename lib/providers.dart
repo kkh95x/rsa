@@ -23,8 +23,9 @@ final getRandomPrivteKeyAndPublicKeyPRovider =
   final d = e.modInverse(phi);
   return ("${e}N$n", "${d}N$n");
 });
-final getRandomPrivteKeyAndPublicKeyValueProvider=StateProvider.family<(String, String)?,To>((ref,to) {
-return null;
+final getRandomPrivteKeyAndPublicKeyValueProvider =
+    StateProvider.family<(String, String)?, To>((ref, to) {
+  return null;
 });
 final messageNotifierProvider =
     StateNotifierProvider.family<MessageNotifier, List<Message>, To>(
@@ -48,6 +49,14 @@ final encriptionStringByPublicKey =
   final n = int.tryParse(publicKey.split("N").lastOrNull ?? "");
   if (pk == null || n == null) {
     return [];
+  }
+  if (plainTextList.length == 0) {
+    final m = BigInt.from(plainTextList.first);
+
+    final nBig = BigInt.from(n);
+    final result = (pow(m, pk));
+    final c = result % nBig;
+    return [c.toInt()];
   }
   List<int> encTextList = [];
   for (var element in plainTextList) {

@@ -13,7 +13,7 @@ class UserAHomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
      final rsaKeys =
-        ref.watch(getRandomPrivteKeyAndPublicKeyValueProvider(To.B));
+        ref.watch(getRandomPrivteKeyAndPublicKeyValueProvider(To.A));
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 500),
@@ -139,7 +139,7 @@ class UserAHomePage extends ConsumerWidget {
                 ).then((value) {
                   if (value is (String, String)) {
                     ref
-                        .read(getRandomPrivteKeyAndPublicKeyValueProvider(To.B)
+                        .read(getRandomPrivteKeyAndPublicKeyValueProvider(To.A)
                             .notifier)
                         .state = value;
                   }
