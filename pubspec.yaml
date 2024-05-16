@@ -44,10 +44,13 @@ dependencies:
 dev_dependencies:
   flutter_launcher_icons: "^0.13.1"
 flutter_launcher_icons:
+  android: "launcher_icon"
+  image_path: "assets/logo.png"
   windows:
     generate: true
     image_path: "assets/logo.png"
     icon_size: 256 # min:48, max:256, default: 48
+
 
   flutter_lints: ^2.0.0
   flutter_test:
